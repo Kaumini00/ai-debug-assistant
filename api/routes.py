@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from core.analyzer import analyze_error
 from core.agent import run_agent
 from core.tools.indexer import index_codebase
+from core.tool_agent import run_tool_agent
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -18,6 +19,10 @@ class AgentRequest(BaseModel):
     
 class IndexRequest(BaseModel):
     codebase_path: str
+
+class AgentRequest(BaseModel):
+    error: str
+    codebase_path: str = "."
 
 @app.get("/")
 def read_root():
@@ -45,3 +50,9 @@ def index(request: IndexRequest):
         return {"message": f"Indexed successfully", "chunks": count}
     except Exception as e:
         return {"error": str(e)}
+
+@app.post("/agent/auto")
+def tool_debug(request: AgentRequest):
+    if not request.error:
+        return {"error": "Error message is required"}
+    return run_tool_agent(request.error, request.codebase_path)
