@@ -1,9 +1,8 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from core.analyzer import analyze_error
-from core.agent import run_agent
 from core.tools.indexer import index_codebase
-from core.tool_agent import run_tool_agent
+from core.agent import run_tool_agent
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -20,10 +19,6 @@ class AgentRequest(BaseModel):
 class IndexRequest(BaseModel):
     codebase_path: str
 
-class AgentRequest(BaseModel):
-    error: str
-    codebase_path: str = "."
-
 @app.get("/")
 def read_root():
     return {"message": "AI Debug Assistant is running"}
@@ -33,12 +28,6 @@ def analyze(request: DebugRequest):
     if not request.error:
         return {"error": "Error message is required"}
     return analyze_error(request.error)
-
-@app.post("/agent/debug")
-def agent_debug(request: AgentRequest):
-    if not request.error:
-        return {"error": "Error message is required"}
-    return run_agent(request.error, request.codebase_path)
 
 @app.post("/agent/index")
 def index(request: IndexRequest):
