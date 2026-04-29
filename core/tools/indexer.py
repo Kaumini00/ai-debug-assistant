@@ -1,9 +1,6 @@
 import os
 import chromadb
-from sentence_transformers import SentenceTransformer
-
-# Load embedding model once
-model = SentenceTransformer("all-MiniLM-L6-v2")
+from core.tools.embedder import get_embedding
 
 # ChromaDB client
 chroma_client = chromadb.PersistentClient(path="./chroma_db")
@@ -85,7 +82,8 @@ def index_codebase(codebase_path: str) -> int:
         return 0
 
     print(f"[Indexer] Embedding {len(all_chunks)} chunks...")
-    all_embeddings = model.encode(all_chunks).tolist()
+    all_embeddings = [get_embedding(chunk) for chunk in all_chunks]
+    print(f"[Indexer] Embedded {len(all_embeddings)} chunks")
 
     # Store in ChromaDB in batches
     batch_size = 100

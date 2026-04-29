@@ -1,8 +1,6 @@
 import chromadb
-from sentence_transformers import SentenceTransformer
 from core.tools.indexer import get_collection
-
-model = SentenceTransformer("all-MiniLM-L6-v2")
+from core.tools.embedder import get_embedding
 
 def vector_search(codebase_path: str, query: str, top_k: int = 5) -> list:
     """
@@ -19,7 +17,7 @@ def vector_search(codebase_path: str, query: str, top_k: int = 5) -> list:
             return [{"error": "Codebase not indexed yet. Call /agent/index first."}]
 
         # Convert query to vector
-        query_embedding = model.encode([query]).tolist()
+        query_embedding = [get_embedding(query)]
 
         # Search ChromaDB for closest vectors
         results = collection.query(
